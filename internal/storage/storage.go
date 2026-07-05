@@ -3,7 +3,7 @@ package storage
 import "sync"
 
 type Storage struct {
-	mu   sync.RWMutex
+	mtx  sync.RWMutex
 	data map[string]string
 }
 
@@ -14,23 +14,23 @@ func New() *Storage {
 }
 
 func (s *Storage) Set(key, value string) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+	s.mtx.Lock()
+	defer s.mtx.Unlock()
 
 	s.data[key] = value
 }
 
 func (s *Storage) Get(key string) (string, bool) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
+	s.mtx.RLock()
+	defer s.mtx.RUnlock()
 
 	value, ok := s.data[key]
 	return value, ok
 }
 
 func (s *Storage) Delete(key string) bool {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+	s.mtx.Lock()
+	defer s.mtx.Unlock()
 
 	if _, ok := s.data[key]; !ok {
 		return false
@@ -41,8 +41,8 @@ func (s *Storage) Delete(key string) bool {
 }
 
 func (s *Storage) Exists(key string) bool {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
+	s.mtx.RLock()
+	defer s.mtx.RUnlock()
 
 	_, ok := s.data[key]
 	return ok
